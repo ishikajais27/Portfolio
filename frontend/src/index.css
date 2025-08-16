@@ -16,19 +16,11 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  cursor: none;
   overflow-x: hidden;
+  cursor: default;
 }
 
-a,
-button {
-  cursor: none;
-}
-
-* {
-  cursor: default !important;
-}
-
+/* Interactive elements get pointer cursor */
 a,
 button,
 [role='button'],
@@ -37,6 +29,7 @@ button,
   cursor: pointer !important;
 }
 
+/* Text selection cursor */
 [contenteditable],
 input,
 textarea,

@@ -7,13 +7,13 @@
   overflow: hidden;
   position: relative;
   color: #fff;
+  background: linear-gradient(135deg, #122e34 0%, #0a1a1f 50%, #051014 100%);
 }
 
 .nameContainer {
   position: relative;
   z-index: 3;
   padding: 2rem;
-  mix-blend-mode: difference;
 }
 
 .name {
@@ -24,16 +24,6 @@
   color: #fff;
 }
 
-.letter {
-  display: inline-block;
-  position: relative;
-  will-change: transform;
-  transition: color 0.3s ease;
-}
-
-.letter:hover {
-  color: #cd8482;
-}
 .letter {
   display: inline-block;
   position: relative;
@@ -56,6 +46,6 @@
 }
 
 .letter:hover {
-  color: #cd8482;
+  color: #cd8482 !important;
   animation: none !important;
 }
