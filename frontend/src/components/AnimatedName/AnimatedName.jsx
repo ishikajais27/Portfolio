@@ -186,7 +186,7 @@ const AnimatedName = () => {
   return (
     <div ref={containerRef} className={styles.nameContainer}>
       <h1 className={styles.name}>
-        {'Ishika Jaiswal'.split('').map((letter, index) => (
+        {'Ishika Jaiswal,'.split('').map((letter, index) => (
           <span
             key={index}
             className={styles.letter}
@@ -196,6 +196,21 @@ const AnimatedName = () => {
           </span>
         ))}
       </h1>
+      <h2 className={styles.title}>
+        {'Developer & Learner'.split('').map((letter, index) => {
+          // Calculate the offset for the second line
+          const offsetIndex = 'Ishika Jaiswal,'.length + index
+          return (
+            <span
+              key={offsetIndex}
+              className={styles.letter}
+              ref={(el) => (lettersRef.current[offsetIndex] = el)}
+            >
+              {letter === ' ' ? '\u00A0' : letter}
+            </span>
+          )
+        })}
+      </h2>
     </div>
   )
 }
