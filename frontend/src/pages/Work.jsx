@@ -44,14 +44,14 @@ export const Work = () => {
       title: 'Portfolio',
       description: 'My personal portfolio showcasing my projects and skills.',
       githubLink: 'https://github.com/ishikajais27/Portfolio',
-      iliveDemo: 'https://portfolio-4mmh.vercel.app/',
+      liveDemo: 'https://portfolio-4mmh.vercel.app/',
     },
     {
       title: 'CodeSensie',
       description:
         'An AI-powered coding assistant that helps developers write better code.',
       githubLink: 'https://github.com/ishikajais27/code_sensei',
-      imageDemo: img2, // Add this path to your codesensie image
+      imageDemo: img2,
     },
   ]
 
