@@ -1,0 +1,11 @@
+/* .appContainer {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
+}
+
+.appContainer section {
+  scroll-snap-align: start;
+  height: 100vh;
+  position: relative;
+} */

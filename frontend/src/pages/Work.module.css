@@ -1,0 +1,339 @@
+.work {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem 20rem;
+  color: white;
+}
+
+.main {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding-top: 120px;
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 4rem;
+  font-size: 3.5rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #cd8482, #677e8a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.projectsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(550px, 1fr));
+  gap: 4rem;
+  padding: 2rem 0;
+}
+
+.projectCard {
+  position: relative;
+  background: rgba(18, 46, 52, 0.8);
+  backdrop-filter: blur(12px);
+  border-radius: 40px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 10px solid rgba(103, 126, 138, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  margin: 1rem;
+}
+
+.projectCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(45deg, #cd8482, #677e8a);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.projectCard:hover::before {
+  opacity: 0.7;
+  animation: glow 2s linear infinite;
+}
+
+.projectCard.activeCard::before {
+  opacity: 1;
+  animation: glow 2s linear infinite;
+}
+
+@keyframes glow {
+  0% {
+    filter: hue-rotate(0deg);
+    box-shadow: 0 0 10px rgba(205, 132, 130, 0.5),
+      0 0 20px rgba(205, 132, 130, 0.3), 0 0 30px rgba(205, 132, 130, 0.2);
+  }
+  50% {
+    filter: hue-rotate(30deg);
+    box-shadow: 0 0 20px rgba(205, 132, 130, 0.7),
+      0 0 30px rgba(205, 132, 130, 0.5), 0 0 40px rgba(205, 132, 130, 0.3);
+  }
+  100% {
+    filter: hue-rotate(0deg);
+    box-shadow: 0 0 10px rgba(205, 132, 130, 0.5),
+      0 0 20px rgba(205, 132, 130, 0.3), 0 0 30px rgba(205, 132, 130, 0.2);
+  }
+}
+
+.projectCard.activeCard {
+  transform: scale(1.02);
+  box-shadow: 0 15px 50px rgba(223, 223, 223, 0.653),
+    0 0 20px rgba(186, 137, 136, 0.763);
+  border-color: rgba(128, 70, 70, 0.865);
+}
+
+.projectCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(190, 181, 181, 0.35),
+    0 0 20px rgba(205, 132, 130, 0.877);
+  border-color: rgba(205, 132, 130, 0.5);
+}
+
+.demoContainer {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+  background: #0a1a1f;
+}
+
+.iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+  transition: opacity 0.3s ease;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 25, 30, 0.9),
+    rgba(18, 46, 52, 0.9)
+  );
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.placeholderContent {
+  text-align: center;
+  padding: 2.5rem;
+  max-width: 80%;
+}
+
+.placeholderContent h3 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.placeholderContent p {
+  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.loadButton {
+  background: linear-gradient(90deg, #cd8482, #677e8a);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.loadButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(90deg, #d1918f, #738e9a);
+}
+
+.liveDemoButton {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  background: rgba(18, 46, 52, 0.95);
+  color: white;
+  border: 1px solid rgba(205, 132, 130, 0.7);
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  z-index: 2;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.liveDemoButton:hover {
+  background: rgba(205, 132, 130, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.cardContent {
+  padding: 2.5rem;
+}
+
+.cardContent h3 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: white;
+}
+
+.cardContent p {
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.githubLink {
+  color: #cd8482;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.githubLink:hover {
+  color: white;
+  transform: translateX(5px);
+}
+
+.githubLink span:last-child {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.githubLink:hover span:last-child {
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .work {
+    padding: 3.5rem 4rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .projectsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    gap: 3.5rem;
+  }
+}
+
+@media (max-width: 1000px) {
+  .work {
+    padding: 3rem;
+  }
+
+  .projectsGrid {
+    grid-template-columns: 1fr;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .demoContainer {
+    height: 420px;
+  }
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 3rem;
+  }
+
+  .work {
+    padding: 2.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .work {
+    padding: 2rem;
+  }
+
+  .title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .projectsGrid {
+    max-width: 100%;
+  }
+
+  .demoContainer {
+    height: 350px;
+  }
+
+  .cardContent {
+    padding: 2rem;
+  }
+
+  .cardContent h3 {
+    font-size: 1.8rem;
+  }
+
+  .cardContent p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .work {
+    padding: 1.5rem;
+  }
+
+  .demoContainer {
+    height: 280px;
+  }
+
+  .placeholderContent h3 {
+    font-size: 1.6rem;
+  }
+
+  .placeholderContent p {
+    font-size: 1rem;
+  }
+
+  .loadButton {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+  }
+}

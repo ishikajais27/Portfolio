@@ -1,81 +1,16 @@
-/* 
 .nameContainer {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
-
-.name {
-  font-size: clamp(3rem, 8vw, 8rem);
-  font-weight: 900;
-  text-align: center;
-  line-height: 1.2;
-  background: linear-gradient(
-    135deg,
-    #8b5a58 0%,
-  #4a5d66 25%,
-  #3d1b2a 50%,
-    #0a1a1f 75%,
-    #8b5a58 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 0 10px rgba(139, 90, 88, 0.5), 0 0 20px rgba(74, 93, 102, 0.3),
-    0 0 30px rgba(61, 27, 42, 0.2), 0 0 40px rgba(10, 26, 31, 0.1);
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
-}
-
-.letter {
-  display: inline-block;
-  position: relative;
-  will-change: transform, color;
-  transform-style: preserve-3d;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  animation: glitter 3s ease-in-out infinite alternate;
-  cursor: pointer;
-}
-
-@keyframes glitter {
-  0%,
-  100% {
-    text-shadow: 0 0 5px rgba(139, 90, 88, 0.8), 0 0 10px rgba(74, 93, 102, 0.6),
-      0 0 15px rgba(61, 27, 42, 0.4), 0 0 20px rgba(10, 26, 31, 0.3);
-  }
-  50% {
-    text-shadow: 0 0 10px rgba(139, 90, 88, 1), 0 0 20px rgba(74, 93, 102, 0.8),
-      0 0 30px rgba(61, 27, 42, 0.6), 0 0 40px rgba(10, 26, 31, 0.4),
-      0 0 50px rgba(139, 90, 88, 0.2);
-  }
-}
-
-.letter:hover {
-  background: linear-gradient(
-    135deg,
-    #8b5a58 0%,
-     #4a5d66 50%,
-    #3d1b2a 100% 
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 0 15px rgba(139, 90, 88, 1), 0 0 25px rgba(74, 93, 102, 0.8),
-    0 0 35px rgba(61, 27, 42, 0.6);
-} */
-.nameContainer {
-  position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 10;
+  text-align: center;
+  z-index: 3;
+  padding: 2rem;
   transform: none;
 }
 
 .name {
-  font-size: clamp(1.5rem, 3vw, 3rem);
-  font-weight: 900;
-  text-align: right;
+  font-size: clamp(2rem, 6vw, 6rem);
+  font-weight: 700;
+  text-align: center; /* Changed from right to center */
   line-height: 1.2;
   background: linear-gradient(
     135deg,

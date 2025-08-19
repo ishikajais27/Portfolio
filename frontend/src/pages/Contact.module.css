@@ -1,0 +1,402 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  margin: auto;
+  color: #f5f5f5;
+  font-family: 'Overpass Mono', monospace;
+  padding: 2rem 0;
+}
+
+.title {
+  font-size: 50px;
+  font-weight: bold;
+  padding: 1.5% 0;
+}
+
+.titleInfo {
+  padding-bottom: 2%;
+  color: #757575;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  padding: 2%;
+}
+
+.inputGroup,
+.textareaGroup {
+  padding: 1% 0;
+}
+
+.inputGroup input,
+.textareaGroup textarea {
+  color: #f5f5f5;
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #757575;
+  padding: 1.5%;
+  font-size: 20px;
+  font-family: 'Overpass Mono', monospace;
+}
+
+.inputGroup input:focus,
+.textareaGroup textarea:focus {
+  background-color: transparent;
+  outline: transparent;
+  border-bottom: 2px solid #69f0ae;
+}
+
+.inputGroup input::placeholder,
+.textareaGroup textarea::placeholder {
+  color: transparent;
+}
+
+.inputGroup label,
+.textareaGroup label {
+  color: #757575;
+  position: relative;
+  left: 0.5em;
+  top: -2em;
+  cursor: auto;
+  transition: 0.3s ease all;
+}
+
+.inputGroup input:focus ~ label,
+.inputGroup input:not(:placeholder-shown) ~ label {
+  top: -4em;
+  color: #69f0ae;
+  font-size: 15px;
+}
+
+.textareaGroup textarea:focus ~ label,
+.textareaGroup textarea:not(:placeholder-shown) ~ label {
+  top: -10.5em;
+  color: #69f0ae;
+  font-size: 15px;
+}
+
+.buttonDiv {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.buttonDiv button {
+  padding: 2%;
+  width: 50%;
+  border: 1px solid;
+  border-color: #212121;
+  border-radius: 5px;
+  font-family: 'Overpass Mono', monospace;
+  font-size: 18px;
+  background-color: black;
+  color: #f5f5f5;
+  box-shadow: 0 0 10px #212121;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.buttonDiv button:hover {
+  background-color: #424242;
+  color: #69f0ae;
+}
+
+/* Footer styles */
+.footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 20vh;
+  width: 75%;
+  margin: auto;
+  opacity: 0.2;
+  border-top: 1px solid #212121;
+  transition: opacity 0.3s ease;
+}
+
+.footer:hover {
+  opacity: 0.9;
+}
+
+.socialMediaImg {
+  height: 5vh;
+  filter: invert(1);
+  transition: filter 0.3s ease;
+}
+
+.socialMediaImg:hover {
+  filter: invert(79%) sepia(29%) saturate(964%) hue-rotate(79deg)
+    brightness(99%) contrast(91%);
+}
+
+.codecellImg {
+  height: 10vh;
+}
+
+/* Keyframes for animations */
+@keyframes fade {
+  0% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}
+
+/* Media queries */
+@media screen and (max-width: 1295px) {
+  .footer {
+    width: 95%;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .form {
+    width: 70%;
+  }
+}
+
+@media screen and (max-width: 680px) {
+  .form {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .title {
+    font-size: 40px;
+    padding-top: 6%;
+  }
+
+  .titleInfo {
+    font-size: 13px;
+  }
+
+  .form {
+    padding: 6% 4%;
+    padding-top: 15%;
+  }
+
+  .inputGroup,
+  .textareaGroup {
+    padding: 3% 0;
+  }
+
+  .inputGroup input,
+  .textareaGroup textarea {
+    font-size: 15px;
+  }
+
+  .inputGroup input:focus ~ label,
+  .inputGroup input:not(:placeholder-shown) ~ label {
+    top: -3.5em;
+    left: 0.1em;
+  }
+
+  .textareaGroup textarea:focus ~ label,
+  .textareaGroup textarea:not(:placeholder-shown) ~ label {
+    top: -8.5em;
+    left: 0.2em;
+  }
+
+  .buttonDiv button {
+    font-size: 15px;
+  }
+
+  .footer {
+    opacity: 0.9;
+  }
+}
+.successMessage {
+  text-align: center;
+  padding: 2rem;
+  background-color: rgba(105, 240, 174, 0.1);
+  border-radius: 8px;
+  border: 1px solid #69f0ae;
+  margin-top: 2rem;
+}
+
+.successMessage h3 {
+  color: #69f0ae;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.successMessage p {
+  color: #f5f5f5;
+  font-size: 1.1rem;
+}
+/* Add these new styles */
+.fieldHoverEffect {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #69f0ae;
+  transition: width 0.3s ease;
+}
+
+.inputGroup[data-hovered='true'] .fieldHoverEffect,
+.textareaGroup[data-hovered='true'] .fieldHoverEffect {
+  width: 100%;
+}
+
+.submitButton {
+  position: relative;
+  overflow: hidden;
+}
+
+.submitButton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(105, 240, 174, 0.2),
+    transparent
+  );
+  transition: left 0.7s ease;
+}
+
+.submitButton:hover::after {
+  left: 100%;
+}
+
+.sendingText {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.dot {
+  animation: bounce 1s infinite;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.returnButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #69f0ae;
+  color: #69f0ae;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.returnButton:hover {
+  background: rgba(105, 240, 174, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(105, 240, 174, 0.2);
+}
+
+/* Vertical Social Media Links */
+.verticalSocials {
+  position: fixed;
+  top: 50%;
+  left: 30px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 70px;
+  z-index: 1000;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  padding: 40px;
+}
+
+.verticalSocials:hover {
+  opacity: 1;
+}
+
+.verticalSocials .socialMediaImg {
+  height: 40px;
+  width: 40px;
+  transition: all 0.3s ease;
+}
+
+.verticalSocials .socialMediaImg:hover {
+  transform: scale(1.2);
+  filter: invert(79%) sepia(29%) saturate(964%) hue-rotate(79deg)
+    brightness(99%) contrast(91%);
+}
+
+/* Media queries for responsive vertical socials */
+@media screen and (max-width: 1200px) {
+  .verticalSocials {
+    left: 20px;
+  }
+
+  .verticalSocials .socialMediaImg {
+    height: 35px;
+    width: 35px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .verticalSocials {
+    left: 15px;
+  }
+
+  .verticalSocials .socialMediaImg {
+    height: 30px;
+    width: 30px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .verticalSocials {
+    position: static;
+    flex-direction: row;
+    justify-content: center;
+    transform: none;
+    margin: 2rem 0;
+    opacity: 1;
+  }
+
+  .verticalSocials .socialMediaImg {
+    height: 35px;
+    width: 35px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .verticalSocials {
+    gap: 15px;
+  }
+
+  .verticalSocials .socialMediaImg {
+    height: 30px;
+    width: 30px;
+  }
+}
