@@ -69,7 +69,8 @@ export const Contact = () => {
   }
 
   return (
-    <div className={styles.contact}>
+    // <div className={styles.contact}>
+    <div className={`${styles.contact} page-container page-transition`}>
       <Header />
       <MovingEyes />
       <AnimatedBackground />

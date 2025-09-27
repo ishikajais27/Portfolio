@@ -1,10 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap');
+
 :root {
   --primary: #cd8482;
   --secondary: #677e8a;
   --accent: #622347;
   --dark: #122e34;
   --light: #0ED21;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 * {
@@ -17,6 +22,8 @@ body {
   font-family: 'Manrope', sans-serif;
   overflow-x: hidden;
   cursor: default;
+  background: linear-gradient(135deg, #122e34 0%, #0a1a1f 50%, #051014 100%);
+  min-height: 100vh;
 }
 
 a,
@@ -32,4 +39,34 @@ input,
 textarea,
 select {
   cursor: text !important;
+}
+
+.page-container {
+  min-height: 100vh;
+  width: 100%;
+  padding-top: 80px;
+}
+
+.page-transition {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
+section {
+  min-height: 100vh;
+  width: 100%;
 }

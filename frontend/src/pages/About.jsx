@@ -66,7 +66,8 @@ export const About = () => {
   }
 
   return (
-    <div className={styles.about}>
+    // <div className={styles.about}>
+    <div className={`${styles.about} page-container page-transition`}>
       <Header />
       <AnimatedBackground />
       <main className={styles.mainContainer}>

@@ -21,10 +21,39 @@ const Header = () => {
     { name: 'Contact', path: '/contact' },
   ]
 
+  // const toggleMenu = () => {
+  //   setIsMenuActive(!isMenuActive)
+  //   if (containerRef.current) {
+  //     containerRef.current.classList.toggle(styles.active)
+  //   }
+  // }
+
+  // const handleLinkClick = (path) => {
+  //   // Close menu when navigating
+  //   setIsMenuActive(false)
+  //   if (containerRef.current) {
+  //     containerRef.current.classList.remove(styles.active)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   // Reset menu state when location changes
+  //   setIsMenuActive(false)
+  //   if (containerRef.current) {
+  //     containerRef.current.classList.remove(styles.active)
+  //   }
+  // }, [location.pathname])
   const toggleMenu = () => {
     setIsMenuActive(!isMenuActive)
     if (containerRef.current) {
       containerRef.current.classList.toggle(styles.active)
+    }
+
+    // Prevent body scroll when menu is open
+    if (!isMenuActive) {
+      document.body.classList.add('menu-open')
+    } else {
+      document.body.classList.remove('menu-open')
     }
   }
 
@@ -34,14 +63,20 @@ const Header = () => {
     if (containerRef.current) {
       containerRef.current.classList.remove(styles.active)
     }
+    document.body.classList.remove('menu-open')
+
+    // Use history.pushState to change URL without full reload
+    window.history.pushState(null, '', path)
   }
 
+  // Also update the useEffect that handles route changes:
   useEffect(() => {
     // Reset menu state when location changes
     setIsMenuActive(false)
     if (containerRef.current) {
       containerRef.current.classList.remove(styles.active)
     }
+    document.body.classList.remove('menu-open')
   }, [location.pathname])
 
   useEffect(() => {

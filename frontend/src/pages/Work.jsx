@@ -72,7 +72,8 @@ export const Work = () => {
   }
 
   return (
-    <div className={styles.work}>
+    // <div className={styles.work}>
+    <div className={`${styles.work} page-container page-transition`}>
       <Header />
       <AnimatedBackground />
       <MovingEyes />

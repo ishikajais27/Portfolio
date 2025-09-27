@@ -1,6 +1,5 @@
 'use client'
 import { useEffect } from 'react'
-import Header from '../components/Header/Header'
 import AnimatedImage from '../components/AnimatedImage'
 import LightEffect from '../components/LightEffect/LightEffect'
 import AnimatedName from '../components/AnimatedName/AnimatedName'
@@ -15,8 +14,8 @@ export const Home = () => {
   }, [])
 
   return (
-    <div className={styles.home}>
-      <Header />
+    <div className={`${styles.home} page-container page-transition`}>
+      {/* Remove <Header /> from here */}
       <LightEffect />
       <div className={styles.mainContent}>
         <div className={styles.nameWrapper}>
@@ -26,14 +25,18 @@ export const Home = () => {
           <AnimatedImage />
         </div>
       </div>
-      <a
+      {/* <a
         href="https://drive.google.com/file/d/1z8TNfjCHJhdD_bHv9HXKZ9i7rTwb48Xk/view?usp=drive_link"
         target="_blank"
         rel="noopener noreferrer"
         className={styles.resumeLink}
       >
         View My Resume
-      </a>
+      </a> */}
+      {/* <div className={styles.scrollIndicator}>
+        <span>Scroll down</span>
+        <div className={styles.arrow}></div>
+      </div> */}
     </div>
   )
 }
