@@ -1,22 +1,27 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import AnimatedImage from '../components/AnimatedImage'
 import LightEffect from '../components/LightEffect/LightEffect'
 import AnimatedName from '../components/AnimatedName/AnimatedName'
 import styles from './Home.module.css'
 
 export const Home = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
   useEffect(() => {
     document.body.style.cursor = 'default'
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
     return () => {
       document.body.style.cursor = ''
+      window.removeEventListener('resize', check)
     }
   }, [])
 
   return (
     <div className={`${styles.home} page-container page-transition`}>
-      {/* Remove <Header /> from here */}
-      <LightEffect />
+      {!isMobile && <LightEffect />}
       <div className={styles.mainContent}>
         <div className={styles.nameWrapper}>
           <AnimatedName />
@@ -25,18 +30,6 @@ export const Home = () => {
           <AnimatedImage />
         </div>
       </div>
-      {/* <a
-        href="https://drive.google.com/file/d/1z8TNfjCHJhdD_bHv9HXKZ9i7rTwb48Xk/view?usp=drive_link"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.resumeLink}
-      >
-        View My Resume
-      </a> */}
-      {/* <div className={styles.scrollIndicator}>
-        <span>Scroll down</span>
-        <div className={styles.arrow}></div>
-      </div> */}
     </div>
   )
 }

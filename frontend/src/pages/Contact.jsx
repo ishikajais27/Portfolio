@@ -48,7 +48,7 @@ export const Contact = () => {
             _subject: 'New Contact Form Submission',
             _template: 'basic',
           }),
-        }
+        },
       )
 
       const result = await response.json()
