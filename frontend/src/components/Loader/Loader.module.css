@@ -1,0 +1,367 @@
+/* Loader.module.css */
+.loader {
+  position: fixed;
+  inset: 0;
+  background: #122e34; /* Updated to match portfolio background */
+  z-index: 99999;
+  overflow: hidden;
+}
+
+.loaderOut {
+  animation: loaderFade 0.7s ease 0.55s forwards;
+}
+
+@keyframes loaderFade {
+  to {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* subtle noise texture overlay */
+.noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+  z-index: 0;
+  will-change: background-position; /* for smooth parallax */
+}
+
+/* ── Card base ───────────────────────────── */
+.card {
+  position: absolute;
+  width: 158px;
+  height: 205px;
+  border-radius: 22px;
+  overflow: hidden;
+  will-change: transform, opacity;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Positions (shifted down) ───────────── */
+.card0 {
+  left: 8%;
+  top: 15%; /* was 10% */
+  animation: float0 4s ease-in-out infinite;
+}
+
+.card1 {
+  left: 50%;
+  top: 8%; /* was 3% */
+  animation: float1 4.7s ease-in-out infinite;
+}
+
+.card2 {
+  right: 6%;
+  top: 14%; /* was 9% */
+  animation: float2 3.9s ease-in-out infinite;
+}
+
+@keyframes float0 {
+  0%,
+  100% {
+    transform: rotate(-13deg) translateY(0px);
+  }
+  50% {
+    transform: rotate(-11deg) translateY(-22px);
+  }
+}
+
+@keyframes float1 {
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(6deg) translateY(0px);
+  }
+  50% {
+    transform: translateX(-50%) rotate(8deg) translateY(-26px);
+  }
+}
+
+@keyframes float2 {
+  0%,
+  100% {
+    transform: rotate(15deg) translateY(0px);
+  }
+  50% {
+    transform: rotate(13deg) translateY(-19px);
+  }
+}
+
+/* ── Exit animations ─────────────────────── */
+.exit0 {
+  animation: doExit0 0.72s cubic-bezier(0.6, 0, 0.98, 0.4) forwards !important;
+}
+.exit1 {
+  animation: doExit1 0.72s cubic-bezier(0.6, 0, 0.98, 0.4) 0.04s forwards !important;
+}
+.exit2 {
+  animation: doExit2 0.72s cubic-bezier(0.6, 0, 0.98, 0.4) 0.02s forwards !important;
+}
+
+@keyframes doExit0 {
+  from {
+    transform: rotate(-13deg);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(-45deg) translate(-180vw, 25vh);
+    opacity: 0;
+  }
+}
+@keyframes doExit1 {
+  from {
+    transform: translateX(-50%) rotate(6deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-50%) rotate(30deg) translateY(-160vh);
+    opacity: 0;
+  }
+}
+@keyframes doExit2 {
+  from {
+    transform: rotate(15deg);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(45deg) translate(180vw, 25vh);
+    opacity: 0;
+  }
+}
+
+/* ── Card internals ──────────────────────── */
+.cardShine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    transparent 60%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cardGlow {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.cardBody {
+  position: absolute;
+  top: 18px;
+  left: 0;
+  right: 0;
+  bottom: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 2;
+}
+
+.avatarRing {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.avatarInner {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.symbol {
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
+  line-height: 1;
+}
+
+.mockText {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 72%;
+}
+
+.mockLine {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+}
+.mockLineMid {
+  width: 78%;
+}
+.mockLineShort {
+  width: 52%;
+}
+
+/* ── Card footer ─────────────────────────── */
+.cardFooter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 14px 13px;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 2;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.cardRole {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.cardSub {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: 'Overpass Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* ── Counter ─────────────────────────────── */
+.counter {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  user-select: none;
+  transition: opacity 0.35s ease;
+}
+
+.counterOut {
+  opacity: 0;
+}
+
+.num {
+  font-size: clamp(5rem, 14vw, 9rem);
+  font-weight: 800;
+  font-family: 'Manrope', sans-serif;
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -5px;
+}
+
+.pct {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  color: #cd8482;
+  letter-spacing: -1px;
+}
+
+/* ── Progress line at bottom ─────────────── */
+.progressLine {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #cd8482, #677e8a);
+  transform-origin: left center;
+  transition: transform 0.04s linear;
+  box-shadow: 0 0 10px rgba(205, 132, 130, 0.6);
+}
+
+/* ── Responsive ──────────────────────────── */
+@media (max-width: 768px) {
+  .card {
+    width: 122px;
+    height: 160px;
+    border-radius: 16px;
+  }
+
+  .card0 {
+    left: 2%;
+    top: 12%;
+  }
+  .card2 {
+    right: 2%;
+    top: 12%;
+  }
+
+  .avatarRing {
+    width: 52px;
+    height: 52px;
+  }
+  .avatarInner {
+    width: 40px;
+    height: 40px;
+  }
+  .symbol {
+    font-size: 1.25rem;
+  }
+
+  .counter {
+    top: 50%;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    width: 100px;
+    height: 132px;
+    border-radius: 14px;
+  }
+
+  .avatarRing {
+    width: 42px;
+    height: 42px;
+  }
+  .avatarInner {
+    width: 32px;
+    height: 32px;
+  }
+  .symbol {
+    font-size: 1rem;
+  }
+
+  .cardRole {
+    font-size: 0.62rem;
+  }
+  .cardSub {
+    font-size: 0.5rem;
+  }
+
+  .num {
+    letter-spacing: -3px;
+  }
+}
