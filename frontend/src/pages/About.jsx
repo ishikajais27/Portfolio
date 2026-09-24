@@ -1,7 +1,5 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
-import Header from '../components/Header/Header'
-import AnimatedBackground from '../components/AnimatedBackground'
 import styles from './About.module.css'
 
 export const About = () => {
@@ -10,43 +8,32 @@ export const About = () => {
   const [showPointer, setShowPointer] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const cardRef = useRef(null)
+  const pointerTimer = useRef(null)
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
-
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
     checkMobile()
     window.addEventListener('resize', checkMobile)
-
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  useEffect(() => () => clearTimeout(pointerTimer.current), [])
+
+  const flashPointer = (x, y) => {
+    setClickPosition({ x, y })
+    setShowPointer(true)
+    clearTimeout(pointerTimer.current)
+    pointerTimer.current = setTimeout(() => setShowPointer(false), 1000)
+  }
+
+  // A tap also fires "click", so this one handler covers mouse and touch.
+  // (The separate touchstart handler flipped the card a second time.)
   const handleClick = (e) => {
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect()
-      setClickPosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      })
-      setShowPointer(true)
-      setTimeout(() => setShowPointer(false), 1000)
+      flashPointer(e.clientX - rect.left, e.clientY - rect.top)
     }
-    setIsFlipped(!isFlipped)
-  }
-
-  const handleTouchStart = (e) => {
-    if (cardRef.current && isMobile) {
-      const touch = e.touches[0]
-      const rect = cardRef.current.getBoundingClientRect()
-      setClickPosition({
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top,
-      })
-      setShowPointer(true)
-      setTimeout(() => setShowPointer(false), 1000)
-      setIsFlipped(!isFlipped)
-    }
+    setIsFlipped((flipped) => !flipped)
   }
 
   const handleKeyPress = (e) => {
@@ -54,29 +41,21 @@ export const About = () => {
       e.preventDefault()
       if (cardRef.current) {
         const rect = cardRef.current.getBoundingClientRect()
-        setClickPosition({
-          x: rect.width / 2,
-          y: rect.height / 2,
-        })
-        setShowPointer(true)
-        setTimeout(() => setShowPointer(false), 1000)
+        flashPointer(rect.width / 2, rect.height / 2)
       }
-      setIsFlipped(!isFlipped)
+      setIsFlipped((flipped) => !flipped)
     }
   }
 
   return (
     // <div className={styles.about}>
     <div className={`${styles.about} page-container page-transition`}>
-      <Header />
-      <AnimatedBackground />
       <main className={styles.mainContainer}>
         <div
           className={`${styles.cardContainer} ${
             isFlipped ? styles.flipped : ''
           }`}
           onClick={handleClick}
-          onTouchStart={handleTouchStart}
           onKeyDown={handleKeyPress}
           ref={cardRef}
           tabIndex={0}
@@ -118,32 +97,54 @@ export const About = () => {
                 <h2>About Me</h2>
                 <div className={styles.aboutText}>
                   <p>
-                    Hi, I'm a 3rd-year CSE student who loves building
-                    things—sometimes with code, sometimes with circuits. From
-                    crafting web apps to building robots for tech fests, I enjoy
-                    exploring how tech solves real problems.
+                    I'm a 4th-year B.Tech CSE student and software developer
+                    working across full-stack and backend. I build practical
+                    systems with Node.js, TypeScript, PostgreSQL and WebSockets,
+                    and I've led technology teams on campus.
                   </p>
+                </div>
 
-                  <p>
-                    Right now, I'm interning at DeepSurge AI, working on a road
-                    quality monitoring solution using computer vision. Beyond
-                    that, I'm diving into blockchain security, Web3, and
-                    generative AI—always curious about what's next.
+                <div className={styles.details}>
+                  <p className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Experience</span>
+                    Web Developer Intern at Expelee FZCO. Built two full-stack
+                    products, Zammencalc and Memowall API, and cut PostgreSQL
+                    query latency by 40% with composite indexing. Audited
+                    distributed LMS codebases for attack surfaces and
+                    reliability failures; the team adopted my findings.
+                  </p>
+                  <p className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Leadership</span>
+                    Chief Officer, Office of Technology &amp; Innovation (OTI),
+                    K-1000 KIIT: directed tech strategy and cross-team
+                    execution. Tech Head, KIIT Nexus: led technical projects for
+                    the student tech community.
+                  </p>
+                  <p className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Beyond code</span>
+                    Designed, built and programmed robots in team settings, and
+                    represented my university at tech fests hosted by IITs and
+                    other premier institutes.
+                  </p>
+                  <p className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Recognition</span>
+                    Top 3 at IIT Patna Tech Fest · GSSoC 2026 Open Source
+                    Contributor &amp; Mentee · McKinsey Forward 2026 participant
                   </p>
                 </div>
 
                 <div className={styles.skills}>
-                  <span className={styles.skill}>React</span>
+                  <span className={styles.skill}>TypeScript</span>
                   <span className={styles.skill}>Node.js</span>
-                  <span className={styles.skill}>CSS3</span>
+                  <span className={styles.skill}>PostgreSQL</span>
+                  <span className={styles.skill}>WebSockets</span>
+                  <span className={styles.skill}>React</span>
                   <span className={styles.skill}>Computer Vision</span>
                   <span className={styles.skill}>Blockchain</span>
-                  <span className={styles.skill}>Web3</span>
                 </div>
 
                 <p className={styles.quote}>
-                  "For me, tech is about learning, failing, and trying again. 🚀
-                  Let's build something cool together."
+                  "I like software that still holds up when things go wrong."
                 </p>
 
                 <div className={styles.flipHint}>

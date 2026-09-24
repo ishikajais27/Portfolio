@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import styles from './Header.module.css'
-import { gsap } from 'gsap'
 import Cursor from '../Cursor/Cursor'
 import { Link, useLocation } from 'react-router-dom'
 import AnimatedBackground from '../AnimatedBackground'
@@ -57,16 +56,13 @@ const Header = () => {
     }
   }
 
-  const handleLinkClick = (path) => {
+  const handleLinkClick = () => {
     // Close menu when navigating
     setIsMenuActive(false)
     if (containerRef.current) {
       containerRef.current.classList.remove(styles.active)
     }
     document.body.classList.remove('menu-open')
-
-    // Use history.pushState to change URL without full reload
-    window.history.pushState(null, '', path)
   }
 
   // Also update the useEffect that handles route changes:
@@ -208,7 +204,7 @@ const Header = () => {
               {/* Resume Link */}
               <li>
                 <a
-                  href="https://drive.google.com/file/d/1z8TNfjCHJhdD_bHv9HXKZ9i7rTwb48Xk/view?usp=drive_link"
+                  href="https://drive.google.com/file/d/1jW6b4_qCgxkP7oveOsjZo-JIfx_3VHzB/view?usp=drive_link"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ '--i': '0.25s' }}

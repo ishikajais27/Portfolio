@@ -2,8 +2,8 @@
 .work {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  /* NO overflow-y: auto — let the page-section snap handle it */
+  height: 100vh;
+  overflow: hidden; /* books and card can never create scrollbars */
   color: white;
   display: flex;
   flex-direction: column;
@@ -12,23 +12,30 @@
 
 .main {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1.5rem 3rem;
+  gap: 1.6rem;
+  padding: 0.5rem 1rem;
   position: relative;
-  z-index: 1;
-  gap: 2rem;
 }
 
-/* ─── Title ───────────────────────────────────────────────── */
+@media (min-width: 769px) {
+  /* keep the shelf clear of the fixed MovingEyes at the bottom */
+  .work {
+    padding-bottom: 130px;
+  }
+}
+
+/* ─── Title ──────────────────────────────────────────────── */
 .titleBlock {
   text-align: center;
 }
 
 .title {
-  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
   font-weight: 800;
   background: linear-gradient(90deg, #cd8482, #677e8a);
   -webkit-background-clip: text;
@@ -46,140 +53,480 @@
   font-family: 'Overpass Mono', monospace;
 }
 
-/* ─── 3D Scene ────────────────────────────────────────────── */
-.sceneWrapper {
-  width: 100%;
-  max-width: 1100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  user-select: none;
-}
-.sceneWrapper:active {
-  cursor: grabbing;
-}
-
-.scene {
+/* ─── Shelf (3D scene) ───────────────────────────────────── */
+/* --bh = book height, --bw = base spine width, --d = book depth */
+.shelf {
+  --bh: clamp(250px, calc(100vh - 460px), 470px);
+  --bw: clamp(52px, 13vw, 112px);
+  --d: calc(var(--bh) * 0.5);
   position: relative;
-  width: 460px;
-  height: 520px;
-  perspective: 1400px;
-  transform-style: preserve-3d;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ─── Card ────────────────────────────────────────────────── */
-.card {
-  position: absolute;
-  width: 420px;
-  height: 500px;
-  border-radius: 22px;
-  background: rgba(18, 46, 52, 0.92);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(205, 132, 130, 0.18);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-  will-change: transform, opacity, filter;
-  transform-style: preserve-3d;
-}
-
-.cardActive {
-  border-color: rgba(205, 132, 130, 0.45);
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6),
-    0 0 60px rgba(205, 132, 130, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.cardInner {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-/* ─── Preview ─────────────────────────────────────────────── */
-.previewArea {
-  position: relative;
-  width: 100%;
-  height: 260px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: #071318;
-}
-
-.iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  transform-origin: top left;
-}
-
-.previewImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.previewOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 50%,
-    rgba(18, 46, 52, 0.95) 100%
-  );
   display: flex;
   align-items: flex-end;
-  padding: 1rem;
+  gap: clamp(3px, 0.6vw, 8px);
+  margin-bottom: 2.2rem;
+  perspective: 1800px;
+  /* eye level above the books, so the top of every book is visible */
+  perspective-origin: 50% -35%;
 }
 
-.tagBadge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 0.3rem 0.8rem;
-  border-radius: 50px;
-  color: #fff;
+/* While a book is open the shelf sits above the dark backdrop */
+.shelfLocked {
+  z-index: 1900;
+  pointer-events: none;
+}
+
+/* ─── Shelf board (floor the books stand on) ─────────────── */
+.board {
+  position: absolute;
+  left: calc(var(--bw) * -0.45);
+  right: calc(var(--bw) * -0.45);
+  bottom: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.boardTop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--d) + 80px);
+  top: calc((var(--d) + 80px) / -2);
+  transform: rotateX(90deg);
+  background: linear-gradient(
+    to bottom,
+    rgba(103, 126, 138, 0),
+    rgba(103, 126, 138, 0.32)
+  );
+  box-shadow: inset 0 -1px 0 rgba(205, 132, 130, 0.35);
+  transition: opacity 0.3s ease;
+}
+
+.boardLip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14px;
+  transform: translateZ(calc(var(--d) / 2 + 40px));
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(
+    to bottom,
+    rgba(205, 132, 130, 0.45),
+    rgba(18, 46, 52, 0.95) 45%
+  );
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  transition: opacity 0.3s ease;
+}
+
+.shelfLocked .boardTop,
+.shelfLocked .boardLip {
+  opacity: 0.25;
+}
+
+/* ─── Book slot (layout + fly-to-centre) ─────────────────── */
+.slot {
+  --w: calc(var(--bw) * var(--wk, 1));
+  --h: calc(var(--bh) * var(--hk, 1));
+  position: relative;
+  flex: none;
+  width: var(--w);
+  height: var(--h);
+  transform-style: preserve-3d;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Selected book: move to the centre of the screen and grow */
+.slotLifted {
+  transform: translate3d(var(--fx, 0px), var(--fy, 0px), 0) scale(var(--fs, 1));
+}
+
+.slotActive {
+  z-index: 30 !important;
+}
+
+/* ─── Book (turns to show its cover) ─────────────────────── */
+.book {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Turn 90° so the front cover faces the reader */
+.slotLifted .book {
+  transform: rotateY(-90deg);
+}
+
+/* Hover / focus: the book slides out of the shelf a little */
+@media (hover: hover) {
+  .slot:not(.slotLifted):hover {
+    z-index: 20 !important;
+  }
+  .slot:not(.slotLifted):hover .book {
+    transform: translate3d(0, -14px, 34px);
+  }
+}
+
+.slot:not(.slotLifted):focus-visible .book {
+  transform: translate3d(0, -14px, 34px);
+}
+
+.slot:not(.slotLifted):active .book {
+  transform: translate3d(0, -8px, 20px);
+}
+
+.slot:focus-visible .spine {
+  outline: 2px solid #e0b4b2;
+  outline-offset: 3px;
+}
+
+/* ─── Faces of the book ──────────────────────────────────── */
+/* Opacity is set on the faces (not on the book) so the 3D shape is never flattened */
+.face {
+  position: absolute;
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  background-color: var(--c);
+  color: var(--ink);
+  transition: opacity 0.3s ease;
+}
+
+.slotDim .face {
+  opacity: 0.18;
+}
+
+.slotHidden .face {
+  opacity: 0;
+}
+
+/* Spine – faces the reader */
+.spine {
+  inset: 0;
+  transform: translateZ(calc(var(--d) / 2));
+  border-radius: 4px 4px 2px 2px;
+  background-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.28) 0%,
+    rgba(255, 255, 255, 0.16) 12%,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.spine::after {
+  content: '';
+  position: absolute;
+  left: 24%;
+  right: 24%;
+  bottom: 0.9rem;
+  height: 5px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.45;
+}
+
+.spineNum {
+  position: absolute;
+  top: 0.85rem;
+  left: 0;
+  right: 0;
+  text-align: center;
   font-family: 'Overpass Mono', monospace;
-  opacity: 0.9;
+  font-size: max(9px, calc(var(--bw) * 0.12));
+  letter-spacing: 1px;
+  opacity: 0.7;
 }
 
-/* ─── Card Info ───────────────────────────────────────────── */
-.cardInfo {
-  flex: 1;
-  padding: 1.5rem 1.8rem;
+/* Vertical title, reads top to bottom like the reference; wraps into columns if needed */
+.spineTitle {
+  position: absolute;
+  top: 2.6rem;
+  bottom: 1.9rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  writing-mode: vertical-rl;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: max(11px, min(calc(var(--bw) * 0.17), calc(var(--bh) * 0.05)));
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+/* Front cover – the right-hand side of the book */
+.cover {
+  top: 0;
+  height: 100%;
+  width: var(--d);
+  left: calc((var(--w) - var(--d)) / 2);
+  transform: rotateY(90deg) translateZ(calc(var(--w) / 2));
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 1rem;
+  padding: 12% 10%;
+  border-radius: 3px 8px 8px 3px;
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0) 45%,
+    rgba(0, 0, 0, 0.22)
+  );
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.cover::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 8%;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.coverNum {
+  font-family: 'Overpass Mono', monospace;
+  font-size: calc(var(--d) * 0.06);
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
+
+.coverTitle {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: calc(var(--d) * 0.115);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+/* Back cover – the left-hand side of the book */
+.side {
+  top: 0;
+  height: 100%;
+  width: var(--d);
+  left: calc((var(--w) - var(--d)) / 2);
+  transform: rotateY(-90deg) translateZ(calc(var(--w) / 2));
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.35),
+    rgba(0, 0, 0, 0.15)
+  );
+}
+
+/* Top edge – pages between the two covers */
+.top {
+  left: 0;
+  width: var(--w);
+  height: var(--d);
+  top: calc((var(--h) - var(--d)) / 2);
+  transform: rotateX(90deg) translateZ(calc(var(--h) / 2));
+  background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.28),
+      rgba(0, 0, 0, 0) 60%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.06) 0 1px,
+      rgba(0, 0, 0, 0) 1px 3px
+    ),
+    linear-gradient(90deg, var(--c) 0 7%, #eadbd6 7% 93%, var(--c) 93% 100%);
+}
+
+/* ─── Backdrop + card ────────────────────────────────────── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1800;
+  background: rgba(5, 16, 20, 0.78);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+}
+
+.backdropOn {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.45s ease;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+.overlayOpen {
+  pointer-events: auto;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  border-radius: 22px;
+  border: 1px solid rgba(205, 132, 130, 0.3);
+  border-top: 4px solid var(--c);
+  background: rgba(18, 46, 52, 0.97);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(205, 132, 130, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(0.86);
+  transition: opacity 0.28s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.45s;
+}
+
+.cardShow {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cardBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.8rem 2rem 2rem;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(205, 132, 130, 0.4);
+  background: rgba(18, 46, 52, 0.85);
+  color: #cd8482;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(205, 132, 130, 0.15);
+  border-color: #cd8482;
+  transform: scale(1.08);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid #e0b4b2;
+  outline-offset: 2px;
+}
+
+.cardIndex {
+  font-family: 'Overpass Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  color: rgba(103, 126, 138, 0.9);
 }
 
 .cardTitle {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #fff;
+  margin: 0.5rem 0 0;
+  padding-right: 2.5rem;
+  font-size: clamp(1.4rem, 3.2vw, 1.8rem);
+  font-weight: 800;
+  line-height: 1.2;
   letter-spacing: -0.5px;
-  margin: 0;
+  color: #fff;
+}
+
+.cardLabel {
+  margin: 1.5rem 0 0.6rem;
+  font-family: 'Overpass Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(103, 126, 138, 0.9);
+}
+
+.chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  padding: 0.3rem 0.85rem;
+  border-radius: 25px;
+  border: 1px solid rgba(205, 132, 130, 0.2);
+  background: rgba(98, 35, 71, 0.35);
+  color: #cd8482;
+  font-size: 0.8rem;
 }
 
 .cardDesc {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: pre-line;
+}
+
+.featureList {
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.featureList li {
+  position: relative;
+  padding-left: 1.1rem;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.65);
-  line-height: 1.6;
-  flex: 1;
-  margin: 0;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.featureList li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #cd8482;
 }
 
 .cardActions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.8rem;
-  margin-top: 0.5rem;
 }
 
 .btnGhost,
 .btnSolid {
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 600;
@@ -210,123 +557,33 @@
   box-shadow: 0 6px 20px rgba(205, 132, 130, 0.35);
 }
 
-/* ─── Controls ────────────────────────────────────────────── */
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-.navBtn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgba(205, 132, 130, 0.4);
-  background: rgba(18, 46, 52, 0.8);
-  color: #cd8482;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(8px);
-}
-.navBtn:hover {
-  background: rgba(205, 132, 130, 0.15);
-  border-color: #cd8482;
-  transform: scale(1.08);
-}
-
-.dots {
-  display: flex;
-  gap: 0.6rem;
-  align-items: center;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(205, 132, 130, 0.5);
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
-}
-.dotActive {
-  background: #cd8482;
-  border-color: #cd8482;
-  transform: scale(1.3);
-  box-shadow: 0 0 10px rgba(205, 132, 130, 0.5);
-}
-
-/* ─── Index display ───────────────────────────────────────── */
-.indexDisplay {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  font-family: 'Overpass Mono', monospace;
-}
-.indexCurrent {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #cd8482;
-  letter-spacing: -1px;
-}
-.indexSep {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.2);
-}
-.indexTotal {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.3);
-}
-
-/* ─── Responsive ──────────────────────────────────────────── */
-@media (max-width: 900px) {
-  .scene {
-    width: 360px;
-    height: 480px;
-    perspective: 1000px;
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .main {
+    gap: 1.2rem;
+    padding: 0.5rem 0.75rem;
   }
-  .card {
-    width: 340px;
-    height: 460px;
+
+  .shelf {
+    --bh: clamp(250px, calc(100vh - 340px), 420px);
+  }
+
+  .spineTitle {
+    top: 2.2rem;
+    bottom: 1.7rem;
+  }
+
+  .cardBody {
+    padding: 1.5rem 1.25rem 1.6rem;
   }
 }
 
-@media (max-width: 600px) {
-  .scene {
-    width: 310px;
-    height: 440px;
-    perspective: 800px;
-  }
-  .card {
-    width: 290px;
-    height: 420px;
-  }
-  .previewArea {
-    height: 200px;
-  }
-  .cardInfo {
-    padding: 1.1rem 1.3rem;
-  }
-  .cardTitle {
-    font-size: 1.2rem;
-  }
-  .cardDesc {
-    font-size: 0.82rem;
-  }
-}
-
-@media (max-width: 400px) {
-  .scene {
-    width: 270px;
-    height: 400px;
-  }
-  .card {
-    width: 255px;
-    height: 385px;
+@media (prefers-reduced-motion: reduce) {
+  .slot,
+  .book,
+  .card,
+  .backdrop,
+  .face {
+    transition-duration: 0.01ms;
   }
 }

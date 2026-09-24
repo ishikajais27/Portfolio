@@ -2,6 +2,13 @@
 import { useEffect, useRef } from 'react'
 import styles from './MovingEyes.module.css'
 
+// Offset of length min(distance, max) pointing from (0,0) towards (dx, dy)
+const offsetToward = (dx, dy, max) => {
+  const distance = Math.min(Math.hypot(dx, dy), max)
+  const angle = Math.atan2(dy, dx)
+  return [Math.cos(angle) * distance, Math.sin(angle) * distance]
+}
+
 const MovingEyes = () => {
   const eye1Ref = useRef(null)
   const pupil1Ref = useRef(null)
@@ -11,103 +18,56 @@ const MovingEyes = () => {
   const inside2Ref = useRef(null)
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      const mouseX = e.clientX
-      const mouseY = e.clientY
+    const eyes = [
+      [eye1Ref.current, pupil1Ref.current, inside1Ref.current],
+      [eye2Ref.current, pupil2Ref.current, inside2Ref.current],
+    ].filter((parts) => parts.every(Boolean))
 
-      // First Eye
-      if (eye1Ref.current && pupil1Ref.current && inside1Ref.current) {
-        const eye = eye1Ref.current
-        const pupil = pupil1Ref.current
-        const inside = inside1Ref.current
+    let mouseX = 0
+    let mouseY = 0
+    let frame = 0
 
-        const eyeX = eye.getBoundingClientRect().left + eye.offsetWidth / 2
-        const eyeY = eye.getBoundingClientRect().top + eye.offsetHeight / 2
+    const update = () => {
+      frame = 0
 
-        const deltaX = mouseX - eyeX
-        const deltaY = mouseY - eyeY
+      // 1) read layout for every eye first...
+      const moves = eyes.map(([eye, pupil, inside]) => {
+        if (!eye.offsetWidth) return null // hidden (small screens)
+        const eyeRect = eye.getBoundingClientRect()
+        const pupilRect = pupil.getBoundingClientRect()
 
-        const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2)
-        const maxDistance = eye.offsetWidth / 2 - pupil.offsetWidth / 2
+        const [pupilX, pupilY] = offsetToward(
+          mouseX - (eyeRect.left + eye.offsetWidth / 2),
+          mouseY - (eyeRect.top + eye.offsetHeight / 2),
+          eye.offsetWidth / 2 - pupil.offsetWidth / 2,
+        )
+        const [insideX, insideY] = offsetToward(
+          mouseX - (pupilRect.left + pupil.offsetWidth / 2),
+          mouseY - (pupilRect.top + pupil.offsetHeight / 2),
+          pupil.offsetWidth / 2 - inside.offsetWidth / 2,
+        )
+        return { pupil, inside, pupilX, pupilY, insideX, insideY }
+      })
 
-        const angle = Math.atan2(deltaY, deltaX)
-
-        const pupilX = Math.cos(angle) * Math.min(distance, maxDistance)
-        const pupilY = Math.sin(angle) * Math.min(distance, maxDistance)
-
-        pupil.style.transform = `translate(${pupilX}px, ${pupilY}px)`
-
-        // Inner pupil movement
-        const pupilCenterX =
-          pupil.getBoundingClientRect().left + pupil.offsetWidth / 2
-        const pupilCenterY =
-          pupil.getBoundingClientRect().top + pupil.offsetHeight / 2
-
-        const innerDeltaX = mouseX - pupilCenterX
-        const innerDeltaY = mouseY - pupilCenterY
-
-        const innerDistance = Math.sqrt(innerDeltaX ** 2 + innerDeltaY ** 2)
-        const innerMaxDistance = pupil.offsetWidth / 2 - inside.offsetWidth / 2
-
-        const innerAngle = Math.atan2(innerDeltaY, innerDeltaX)
-
-        const innerPupilX =
-          Math.cos(innerAngle) * Math.min(innerDistance, innerMaxDistance)
-        const innerPupilY =
-          Math.sin(innerAngle) * Math.min(innerDistance, innerMaxDistance)
-
-        inside.style.transform = `translate(${innerPupilX}px, ${innerPupilY}px)`
-      }
-
-      // Second Eye
-      if (eye2Ref.current && pupil2Ref.current && inside2Ref.current) {
-        const eye = eye2Ref.current
-        const pupil = pupil2Ref.current
-        const inside = inside2Ref.current
-
-        const eyeX = eye.getBoundingClientRect().left + eye.offsetWidth / 2
-        const eyeY = eye.getBoundingClientRect().top + eye.offsetHeight / 2
-
-        const deltaX = mouseX - eyeX
-        const deltaY = mouseY - eyeY
-
-        const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2)
-        const maxDistance = eye.offsetWidth / 2 - pupil.offsetWidth / 2
-
-        const angle = Math.atan2(deltaY, deltaX)
-
-        const pupilX = Math.cos(angle) * Math.min(distance, maxDistance)
-        const pupilY = Math.sin(angle) * Math.min(distance, maxDistance)
-
-        pupil.style.transform = `translate(${pupilX}px, ${pupilY}px)`
-
-        // Inner pupil movement
-        const pupilCenterX =
-          pupil.getBoundingClientRect().left + pupil.offsetWidth / 2
-        const pupilCenterY =
-          pupil.getBoundingClientRect().top + pupil.offsetHeight / 2
-
-        const innerDeltaX = mouseX - pupilCenterX
-        const innerDeltaY = mouseY - pupilCenterY
-
-        const innerDistance = Math.sqrt(innerDeltaX ** 2 + innerDeltaY ** 2)
-        const innerMaxDistance = pupil.offsetWidth / 2 - inside.offsetWidth / 2
-
-        const innerAngle = Math.atan2(innerDeltaY, innerDeltaX)
-
-        const innerPupilX =
-          Math.cos(innerAngle) * Math.min(innerDistance, innerMaxDistance)
-        const innerPupilY =
-          Math.sin(innerAngle) * Math.min(innerDistance, innerMaxDistance)
-
-        inside.style.transform = `translate(${innerPupilX}px, ${innerPupilY}px)`
-      }
+      // 2) ...then write, so the browser never lays out twice per frame
+      moves.forEach((m) => {
+        if (!m) return
+        m.pupil.style.transform = `translate(${m.pupilX}px, ${m.pupilY}px)`
+        m.inside.style.transform = `translate(${m.insideX}px, ${m.insideY}px)`
+      })
     }
 
-    document.addEventListener('mousemove', handleMouseMove)
+    const handleMouseMove = (e) => {
+      mouseX = e.clientX
+      mouseY = e.clientY
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove, { passive: true })
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
+      cancelAnimationFrame(frame)
     }
   }, [])
 

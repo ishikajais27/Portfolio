@@ -578,3 +578,73 @@
     padding: 0.2rem 0.5rem;
   }
 }
+
+.aboutContent .skills {
+  margin: 0.9rem 0;
+}
+
+.aboutContent .quote {
+  margin: 1rem 0;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-align: left;
+}
+
+.detailRow {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #e5e7eb;
+  margin: 0;
+}
+
+.detailLabel {
+  display: inline-block;
+  margin-right: 0.5rem;
+  color: var(--primary);
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.linkBtn {
+  padding: 0.4rem 1.2rem;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  color: var(--primary);
+  text-decoration: none;
+  background: rgba(98, 35, 71, 0.35);
+  border: 1px solid rgba(205, 132, 130, 0.2);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.linkBtn:hover {
+  background: rgba(98, 35, 71, 0.5);
+  transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+  .aboutContent {
+    overflow-y: auto;
+  }
+
+  .detailRow {
+    font-size: 0.8rem;
+  }
+
+  .linkBtn {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.9rem;
+  }
+}

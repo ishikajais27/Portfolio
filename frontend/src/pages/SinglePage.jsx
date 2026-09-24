@@ -1,238 +1,257 @@
-// SinglePage.jsx
 'use client'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import Header from '../components/Header/Header'
+import AnimatedBackground from '../components/AnimatedBackground'
+import MovingEyes from '../components/MovingEyes/MovingEyes'
 import { Home } from './Home'
 import { About } from './About'
 import { Work } from './Work'
 import { Contact } from './Contact'
 import '../App.module.css'
 
+const SECTIONS = [
+  { id: 'home', component: memo(Home) },
+  { id: 'about', component: memo(About) },
+  { id: 'work', component: memo(Work) },
+  { id: 'contact', component: memo(Contact) },
+]
+
+const MIN_LOCK_MS = 550 // minimum time after a step before a new gesture can start
+const MAX_LOCK_MS = 1500 // safety cap so scrolling can never stay stuck
+const GESTURE_GAP_MS = 120 // silence this long = gesture (and its inertia) ended
+const WHEEL_THRESHOLD = 30 // accumulated delta needed to count as intentional
+const SETTLE_MS = 1000
+
+const pathOf = (id) => (id === 'home' ? '/' : `/${id}`)
+const idFromPath = (pathname) => {
+  const id = pathname.replace(/^\/|\/$/g, '') || 'home'
+  return SECTIONS.some((s) => s.id === id) ? id : null
+}
+
+const canScrollInside = (target, container, deltaY) => {
+  for (
+    let el = target;
+    el && el !== container && el !== document.body;
+    el = el.parentElement
+  ) {
+    const { overflowY } = getComputedStyle(el)
+    if (
+      (overflowY === 'auto' || overflowY === 'scroll') &&
+      el.scrollHeight > el.clientHeight + 1
+    ) {
+      const atTop = el.scrollTop <= 0
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1
+      if (deltaY < 0 ? !atTop : !atBottom) return true
+    }
+  }
+  return false
+}
+
 export const SinglePage = () => {
-  const [currentSection, setCurrentSection] = useState('home')
-  const [isScrolling, setIsScrolling] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const scrollTimeoutRef = useRef(null)
-  const sectionsRef = useRef([])
 
-  const sections = [
-    { id: 'home', path: '/', component: Home },
-    { id: 'about', path: '/about', component: About },
-    { id: 'work', path: '/work', component: Work },
-    { id: 'contact', path: '/contact', component: Contact },
-  ]
+  const containerRef = useRef(null)
+  const currentRef = useRef('home')
+  const navigateRef = useRef(navigate)
+  navigateRef.current = navigate
+  const autoScrolling = useRef(false)
+  const settleTimer = useRef(null)
+  const firstRun = useRef(true)
 
-  useEffect(() => {
-    const handleParallax = () => {
-      const sections = document.querySelectorAll('.page-section')
-      const scrollPosition = window.pageYOffset
-
-      sections.forEach((section) => {
-        const element = section
-        const speed = 0.5 // Parallax speed
-        const yPos = -(scrollPosition * speed)
-
-        // Apply parallax to background
-        const bg = element.querySelector('.parallax-bg')
-        if (bg) {
-          bg.style.transform = `translateY(${yPos}px)`
-        }
-
-        // Apply subtle parallax to content
-        const content = element.querySelector('.section-content')
-        if (content) {
-          const contentSpeed = 0.1
-          const contentYPos = -(scrollPosition * contentSpeed)
-          content.style.transform = `translateY(${contentYPos}px)`
-        }
-      })
-    }
-
-    // Throttle the parallax function for performance
-    let ticking = false
-    const throttledParallax = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleParallax()
-          ticking = false
-        })
-        ticking = true
-      }
-    }
-
-    window.addEventListener('scroll', throttledParallax, { passive: true })
-
-    return () => {
-      window.removeEventListener('scroll', throttledParallax)
-    }
+  const commit = useCallback((id, updateUrl = true) => {
+    currentRef.current = id
+    if (updateUrl) navigateRef.current(pathOf(id), { replace: true })
   }, [])
 
-  // Sync URL with current section
-  useEffect(() => {
-    const sectionFromPath = location.pathname.slice(1) || 'home'
-    if (sectionFromPath !== currentSection) {
-      setCurrentSection(sectionFromPath)
-      scrollToSection(sectionFromPath, false)
-    }
-  }, [location.pathname])
-
-  const scrollToSection = useCallback(
-    (sectionId, updateUrl = true) => {
-      const element = document.getElementById(sectionId)
-      if (element) {
-        setCurrentSection(sectionId)
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        })
-
-        if (updateUrl) {
-          const sectionPath = sectionId === 'home' ? '/' : `/${sectionId}`
-          navigate(sectionPath, { replace: true })
-        }
+  const nearestSection = useCallback(() => {
+    const containerTop = containerRef.current.getBoundingClientRect().top
+    let best = SECTIONS[0].id
+    let bestDist = Infinity
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (!el) return
+      const dist = Math.abs(el.getBoundingClientRect().top - containerTop)
+      if (dist < bestDist) {
+        bestDist = dist
+        best = id
       }
-    },
-    [navigate]
-  )
+    })
+    return best
+  }, [])
 
-  const handleWheel = useCallback(
-    (e) => {
-      if (isScrolling) return
+  const goTo = useCallback(
+    (id, { updateUrl = true, smooth = true } = {}) => {
+      const container = containerRef.current
+      const el = document.getElementById(id)
+      if (!container || !el) return
 
-      e.preventDefault()
-      setIsScrolling(true)
+      commit(id, updateUrl)
 
-      const currentIndex = sections.findIndex(
-        (section) => section.id === currentSection
+      autoScrolling.current = true
+      clearTimeout(settleTimer.current)
+      settleTimer.current = setTimeout(
+        () => {
+          autoScrolling.current = false
+          const nearest = nearestSection()
+          if (nearest !== currentRef.current) commit(nearest)
+        },
+        smooth ? SETTLE_MS : 100,
       )
 
-      if (e.deltaY > 0 && currentIndex < sections.length - 1) {
-        // Scroll down to next section
-        scrollToSection(sections[currentIndex + 1].id)
-      } else if (e.deltaY < 0 && currentIndex > 0) {
-        // Scroll up to previous section
-        scrollToSection(sections[currentIndex - 1].id)
-      }
-
-      clearTimeout(scrollTimeoutRef.current)
-      scrollTimeoutRef.current = setTimeout(() => setIsScrolling(false), 800)
-    },
-    [isScrolling, currentSection, sections, scrollToSection]
-  )
-
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (isScrolling) return
-
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ') {
-        e.preventDefault()
-        setIsScrolling(true)
-
-        const currentIndex = sections.findIndex(
-          (section) => section.id === currentSection
-        )
-
-        if (
-          (e.key === 'ArrowDown' || e.key === ' ') &&
-          currentIndex < sections.length - 1
-        ) {
-          scrollToSection(sections[currentIndex + 1].id)
-        } else if (e.key === 'ArrowUp' && currentIndex > 0) {
-          scrollToSection(sections[currentIndex - 1].id)
-        }
-
-        clearTimeout(scrollTimeoutRef.current)
-        scrollTimeoutRef.current = setTimeout(() => setIsScrolling(false), 800)
+      const top =
+        el.getBoundingClientRect().top -
+        container.getBoundingClientRect().top +
+        container.scrollTop
+      if (smooth) {
+        container.scrollTo({ top, behavior: 'smooth' })
+      } else {
+        container.style.scrollBehavior = 'auto'
+        container.scrollTop = top
+        container.style.scrollBehavior = ''
       }
     },
-    [isScrolling, currentSection, sections, scrollToSection]
+    [commit, nearestSection],
   )
 
-  // Set up event listeners
   useEffect(() => {
-    window.addEventListener('wheel', handleWheel, { passive: false })
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel)
-      window.removeEventListener('keydown', handleKeyDown)
-      clearTimeout(scrollTimeoutRef.current)
+    const id = idFromPath(location.pathname)
+    if (id && id !== currentRef.current) {
+      goTo(id, { updateUrl: false, smooth: !firstRun.current })
     }
-  }, [handleWheel, handleKeyDown])
+    firstRun.current = false
+  }, [location.pathname, goTo])
 
-  // Intersection Observer for section detection
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        if (autoScrolling.current) return
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            const newSection = entry.target.id
-            setCurrentSection(newSection)
-
-            // Update URL without triggering scroll
-            const sectionPath = newSection === 'home' ? '/' : `/${newSection}`
-            if (location.pathname !== sectionPath) {
-              navigate(sectionPath, { replace: true })
-            }
-          }
+          if (!entry.isIntersecting || entry.intersectionRatio < 0.5) return
+          if (entry.target.id !== currentRef.current) commit(entry.target.id)
         })
       },
       {
-        threshold: [0.1, 0.5, 0.9],
+        root: containerRef.current,
+        threshold: [0.5],
         rootMargin: '-10% 0px -10% 0px',
-      }
+      },
     )
-
-    // Observe all sections
-    sections.forEach((section) => {
-      const element = document.getElementById(section.id)
-      if (element) {
-        observer.observe(element)
-        sectionsRef.current.push(element)
-      }
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
     })
+    return () => observer.disconnect()
+  }, [commit])
+
+  // Wheel + keyboard navigation (the ONLY wheel handler)
+  useEffect(() => {
+    let locked = false
+    let lockedAt = 0
+    let lastTime = 0
+    let lastAbs = 0
+    let acc = 0
+
+    const step = (dir) => {
+      const index = SECTIONS.findIndex((s) => s.id === currentRef.current)
+      const next = SECTIONS[index + dir]
+      if (!next) return false
+      goTo(next.id)
+      return true
+    }
+
+    const lock = (now) => {
+      locked = true
+      lockedAt = now
+      acc = 0
+    }
+
+    const isOverlayOpen = () => document.body.classList.contains('menu-open')
+
+    const onWheel = (e) => {
+      if (isOverlayOpen()) return
+      if (canScrollInside(e.target, containerRef.current, e.deltaY)) return
+
+      e.preventDefault()
+
+      const now = performance.now()
+      const dy =
+        e.deltaMode === 1
+          ? e.deltaY * 16
+          : e.deltaMode === 2
+          ? e.deltaY * window.innerHeight
+          : e.deltaY
+      const abs = Math.abs(dy)
+      const gap = now - lastTime
+      lastTime = now
+
+      if (gap > GESTURE_GAP_MS) acc = 0
+
+      if (locked) {
+        const elapsed = now - lockedAt
+        // Inertia decays; a rising delta after the minimum lock = new swipe
+        const newGesture =
+          elapsed >= MIN_LOCK_MS &&
+          (gap > GESTURE_GAP_MS || abs > lastAbs * 1.5)
+        lastAbs = abs
+        if (!newGesture && elapsed < MAX_LOCK_MS) return
+        locked = false
+        acc = 0
+      }
+      lastAbs = abs
+
+      if (acc !== 0 && Math.sign(acc) !== Math.sign(dy)) acc = 0
+      acc += dy
+
+      if (Math.abs(acc) < WHEEL_THRESHOLD) return
+
+      if (step(acc > 0 ? 1 : -1)) lock(now)
+      else acc = 0
+    }
+
+    const onKeyDown = (e) => {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== ' ') return
+      if (isOverlayOpen()) return
+
+      const t = e.target
+      if (t.closest?.('input, textarea, select, [contenteditable]')) return
+      if (e.key === ' ' && t.closest?.('button, a, [role="button"]')) return
+
+      e.preventDefault()
+
+      const now = performance.now()
+      if (locked && now - lockedAt < MIN_LOCK_MS) return
+
+      if (step(e.key === 'ArrowUp' || (e.key === ' ' && e.shiftKey) ? -1 : 1)) {
+        lock(now)
+      }
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('keydown', onKeyDown)
 
     return () => {
-      sectionsRef.current.forEach((section) => {
-        if (section) observer.unobserve(section)
-      })
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('keydown', onKeyDown)
+      clearTimeout(settleTimer.current)
     }
-  }, [sections, navigate, location.pathname])
-
-  const navigateToSection = useCallback(
-    (sectionId) => {
-      if (isScrolling) return
-      scrollToSection(sectionId)
-    },
-    [isScrolling, scrollToSection]
-  )
+  }, [goTo])
 
   return (
-    <div className="single-page-container">
-      {/* Navigation Dots */}
-      <nav className="navigation-dots">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            className={`dot ${
-              currentSection === section.id ? 'active-dot' : ''
-            }`}
-            onClick={() => navigateToSection(section.id)}
-            aria-label={`Go to ${section.id} section`}
-          />
-        ))}
-      </nav>
+    <>
+      <AnimatedBackground />
+      <Header />
+      <MovingEyes />
 
-      {/* Sections */}
-      {sections.map((section) => {
-        const SectionComponent = section.component
-        return (
-          <section key={section.id} id={section.id} className="page-section">
-            <SectionComponent />
+      <div className="single-page-container" ref={containerRef}>
+        {SECTIONS.map(({ id, component: Section }) => (
+          <section key={id} id={id} className="page-section">
+            <Section />
           </section>
-        )
-      })}
-    </div>
+        ))}
+      </div>
+    </>
   )
 }

@@ -1,13 +1,11 @@
 .eyesContainer {
   position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 88px; /* just below the 80px navbar */
+  left: 24px;
   display: flex;
   gap: 20px;
   z-index: 15;
 }
-
 .eye {
   width: 80px;
   height: 80px;

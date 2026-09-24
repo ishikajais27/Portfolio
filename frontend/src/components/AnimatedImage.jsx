@@ -1,18 +1,34 @@
-
 'use client'
-import { useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import styles from './AnimatedImage.module.css'
 import profileImage from '../assets/img2.png'
 
 const AnimatedImage = () => {
   const imageRef = useRef(null)
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 })
+  const pos = useRef({ x: 50, y: 50 })
+  const frame = useRef(0)
+
+  const apply = () => {
+    frame.current = 0
+    const el = imageRef.current
+    if (!el) return
+    el.style.setProperty('--mouse-x', `${pos.current.x}%`)
+    el.style.setProperty('--mouse-y', `${pos.current.y}%`)
+  }
+
+  const update = (x, y) => {
+    pos.current = { x, y }
+    if (!frame.current) frame.current = requestAnimationFrame(apply)
+  }
+
+  useEffect(() => () => cancelAnimationFrame(frame.current), [])
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    setMousePos({ x, y })
+    update(
+      ((e.clientX - rect.left) / rect.width) * 100,
+      ((e.clientY - rect.top) / rect.height) * 100,
+    )
   }
 
   return (
@@ -20,13 +36,9 @@ const AnimatedImage = () => {
       <div
         className={styles.animatedImage}
         ref={imageRef}
-        style={{
-          backgroundImage: `url(${profileImage})`,
-          '--mouse-x': `${mousePos.x}%`,
-          '--mouse-y': `${mousePos.y}%`,
-        }}
+        style={{ backgroundImage: `url(${profileImage})` }}
         onMouseMove={handleMouseMove}
-        onMouseLeave={() => setMousePos({ x: 50, y: 50 })}
+        onMouseLeave={() => update(50, 50)}
       >
         <div className={styles['water-distortion']} />
         <div className={styles['dark-overlay']} />
